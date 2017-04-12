@@ -1,0 +1,93 @@
+Hello I need a help in analyzing deferentially expressed genes with I have a Kallisto data with 6 folders for RNA seq. and an identification file for info. as the following:
+
+run_accession experiment_accession Index condition sample
+
+pC1-a pC1-6a Rip-GFP/Col-a control Xiao-Ning
+
+pC2-b pC1-6b Rip-GFP/Col-b control Xiao-Ning
+
+pC3-c pC1-6c Rip-GFP/Col-c control Xiao-Ning
+
+p9-1 p9-1-6g Rip-OX9-1 p9 Xiao-Ning
+
+p9-2 p9-2-6h Rip-OX9-2 p9 Xiao-Ning
+
+p9-3 p9-3-6j Rip-OX9-3 p9 Xiao-Ning
+
+and my task is analyzing them with the sleuth on R studio I have a certain script as the following:
+
+source("http://bioconductor.org/biocLite.R")
+
+biocLite("rhdf5")
+
+biocLite("biomaRt")
+
+biocLite("devtools") # only if devtools not yet installed
+
+install.packages('devtools')
+
+devtools::install_github('pachterlab/sleuth')
+
+install.packages('shiny')
+
+library("sleuth")
+
+base_dir <- "C:/Users/asus/Desktop/data"
+
+sample_id <- dir(file.path(base_dir,"results"))
+
+kal_dirs <- sapply(sample_id, function(id) file.path(base_dir, "results", id, "kallisto"))
+
+s2c <- read.table(file.path(base_dir, "hiseq_info_rip_p9.txt" ), header = TRUE, stringsAsFactors=FALSE)
+
+s2c <- dplyr::select(s2c, sample = run_accession, condition)
+
+s2c
+
+s2c <- dplyr::mutate(s2c, path = kal_dirs)
+
+print(s2c)
+
+so <- sleuth_prep(s2c, ~ condition)
+
+so <- sleuth_fit(so)
+
+so <- sleuth_wt(so, 'conditionp1')
+
+models(so)
+
+sleuth_live(so)
+
+results_table <- sleuth_results(so, 'conditionp9')
+
+and the script is working but I am facing a problem as the following:
+
+reading in kallisto results
+
+......
+
+Error in check_kal_pack(kal_list) :
+
+Inconsistent number of transcripts. Please make sure you used the same index everywhere.
+
+so <- sleuth_fit(so)
+
+Error in is(obj, "sleuth") : object 'so' not found
+
+so <- sleuth_wt(so, 'control Xiao-Ning')
+
+Error in is(obj, "sleuth") : object 'so' not found
+
+models(so)
+
+Error in models(so) : object 'so' not found
+
+sleuth_live(so)
+
+Error in is(obj, "sleuth") : object 'so' not found
+
+results_table <- sleuth_results(so, 'Xiao-Ning')
+
+Error in is(obj, "sleuth") : object 'so' not found
+
+I would appreciate any small details that could help, thank you!
